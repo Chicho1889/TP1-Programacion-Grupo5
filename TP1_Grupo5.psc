@@ -22,7 +22,7 @@ Proceso TP1_Grupo5
 	// 		1. La carga de reservas consistirá en ingresar un turno al vector reservas[dia,turno].-
 	// 		2. La busqueda consistirá en buscar en el vector reservas[cancha, dia,turno] la cancha-dia-horario reservado.-
 	// 		3. La búsqueda por nombre consistirá justamente en buscar ese nombre con el que se reservó la cancha en el vector reservas[cancha, dia, turno].-
-	// 		4. Mostrará por pantalla todas las reservas realizadas en el día ingresado por el operador para una cancha determinada.-
+	// 		4. Mostrará por pantalla todas las reservas realizadas en el día ingresado por el operador.-
 	// 		5. Mostrará por pantalla todas las reservas realizadas en el mes para una cancha determinada.-
 	// 		6. Mostrará por pantalla todos los horarios disponibles para reservar cualquiera de las dos canchas en un día determinado.-
 	// 		7. En esta opción el administrador del sistema podrá borrar/cancelar una reserva previamente hecha.-
@@ -50,7 +50,7 @@ Proceso TP1_Grupo5
 	
 	claveAcceso(password)				// llamado al SubProceso claveAcceso para el ingreso de la clave de bloqueo para cancelaciones y salida del sistema (SubProceso claveAcceso en línea Nº ... )
 	
-	Escribir "Para inicializar el sistema, por favor ingrese NÚMERO DE MES donde realizará las reservas de la cancha: "
+	Escribir "Para inicializar el sistema, por favor ingrese el NUMERO DE MES donde realizará las reservas de la cancha: "
 	ingresoMes(mes, nombreMes, cantidad_diasMes)	// llamado al SubProceso ingresoMes, donde solicita el número de mes y asigna por referencia el nombre de ese mes específico (SubProceso en línea Nº ... )
 	
 	Dimension reservas[2, cantidad_diasMes, 12]	// una vez dimensionado el vector, debo cargarlo con datos vacios porque sino al querer cancelar una reserva de una posicion que no tiene nada tira error
@@ -109,12 +109,13 @@ Proceso TP1_Grupo5
 				Escribir "Presione una tecla para continuar..."
 				Esperar Tecla
 			4:
-				// SubProceso listadoReservasDia()	// el operador ingresa la cancha y el día que quiere ver y se muestran por pantalla todas las reservas de ese día.-
+				// SubProceso listadoReservasDia()	// el operador ingresa el día que quiere ver y se muestran por pantalla todas las reservas de ese día.-
 				listadoReservasDia(reservas, cantidad_diasMes, nombreMes)
 			5:
 				// SubProceso listadoReservasMes()	// el operador ingresa la cancha que desea visualizar y se muestra por pantalla las reservas del mes en curso para esa cancha solicitada.-
 			6:
 				// SubProceso horariosLibres()		// solicita al operador que ingrese un día y muestra los horarios libres para cualquiera de las dos canchas.-
+				horariosLibres(reservas, cantidad_diasMes, nombreMes)
 			7:
 				ingresoClave_VF=solicitaClave(password) // llamado a la función solicitaClave() que devuelve el valor Verdadero si ingreso correctamente la clave y Falso si fue incorrecta (en línea Nº ...)
 				Si ingresoClave_VF Entonces
@@ -156,7 +157,7 @@ Proceso TP1_Grupo5
 	Escribir "* Enrique Marconi Favini"
 FinProceso
 
-//**********************************************************************************************************************************************************************************************************************************
+//**************************************************************************************** < SUBPROCESO CLAVEACCESO - INGRESA CLAVE > *********************************************************************************************
 
 SubProceso claveAcceso(password Por Referencia)
 	Escribir "Buenos días Sr. Supervisor."
@@ -169,7 +170,7 @@ SubProceso claveAcceso(password Por Referencia)
 	Fin Mientras	
 FinSubProceso
 
-// *********************************************************************************************************************************************************************************************************************************
+// ********************************************** < SUBPROCESO INGRESOMES - INGRESA / VALIDA / ASIGNA NOMBRE (en Funcion) / ASIGNA CANTIDAD TOTAL DE DIAS (en Funcion) > *********************************************************
 
 SubProceso ingresoMes(mes Por Referencia, nombreMes Por Referencia, cantidad_diasMes Por Referencia)	// SubProceso utilizado para solicitar al operador que ingrese el mes, validar y llamar a dos funciones
 	// que asignan el nombre del mes seleccionado y la cantidad de días que le corresponden.-
@@ -182,7 +183,7 @@ SubProceso ingresoMes(mes Por Referencia, nombreMes Por Referencia, cantidad_dia
 	cantidad_diasMes=asignaSegunMes(mes)	// Función que devuelve la cantidad de días que tiene el mes seleccionado por el operador (Función asignaSegunMes en línea Nº ... )
 FinSubProceso
 
-// *********************************************************************************************************************************************************************************************************************************
+// ************************************************************************ < FUNCION ASIGNANOMBREMES - DEVUELVE EL NOMBRE DEL MES SELECCIONADO > *********************************************************************************
 
 Funcion nombreM<-asignaNombreMes(mes)			// Función utilizada para devolver en la variable el nombre del mes sobre el cual se está trabajando
 	Definir nombreM Como Caracter
@@ -214,7 +215,7 @@ Funcion nombreM<-asignaNombreMes(mes)			// Función utilizada para devolver en la
 	Fin Segun
 FinFuncion
 
-// **************************************************************************** < FUNCION - ASIGNA LA CANTIDAD DE DIAS DE ACUERDO AL MES SELECCIONADO > ************************************************************************
+// ***************************************************************** < FUNCION ASIGNASEGUNMES- DEVUELVE LA CANTIDAD DE DIAS DE ACUERDO AL MES SELECCIONADO > ********************************************************************
 
 Funcion cant_dias<-asignaSegunMes(mes)		// esta función asigna la cantidad de días que le corresponden al mes seleccionado por el operador y lo devuelve en la variable que retorna esta función.-
 	Definir cant_dias Como Entero
@@ -228,7 +229,7 @@ Funcion cant_dias<-asignaSegunMes(mes)		// esta función asigna la cantidad de dí
 	Fin Segun
 FinFuncion
 
-// ***************************************************************************************** < SUBPROCESO DE CARGA DEL VECTOR EN BLANCO > ***************************************************************************************
+// ******************************************************************** < SUBPROCESO INICIALIZARVECTORRESERVAS - REALIZA LA CARGA DEL VECTOR EN BLANCO > *************************************************************************
 
 SubProceso inicializarVectorReservas(reservas, cantidad_diasMes Por Valor)	// SubProceso de carga del vector Reservas, se realiza porque al ejecutar el programa daba error al querer cancelar una reserva que no fue 
 	Definir i,j,k Como Entero																		// realizada en ese turno, por no estar "inicializado" con ningún valor el vector.-
@@ -272,8 +273,9 @@ SubProceso cargaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Valo
 	
 	Mientras !banderaSalir Hacer			// Selecciona el tipo de cancha que el usuario desea reservar (TECHADA o DESCUBIERTA), representado por el primer índice del vector reservas[cancha,dia,turno]
 		Escribir "---------------------------------------------------------------------------------------" // se utiliza "-" en vez de "*" para diferenciar claramente a la vista del operador del
-		Escribir "*                       Carga de Reserva de una cancha deportiva                      *" // sistema que ha ingresado a una opción del menú.- 
+		Escribir "       Opción 1 del Menú Principal - Carga de Reserva de una cancha deportiva          " // sistema que ha ingresado a una opción del menú.- 
 		Escribir "---------------------------------------------------------------------------------------"
+		Escribir ""
 		Escribir "Por favor, ingrese el tipo de cancha que desea reservar: "
 		Escribir "--------------------------------------------------------"
 		Escribir "1. Cancha TECHADA"
@@ -362,10 +364,15 @@ SubProceso cargaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Valo
 		Escribir "Presione una tecla para continuar..."
 		Esperar Tecla
 	Fin Si
+	Si opcionDelMenu==13 o turno=="" Entonces
+		Escribir "El operador anula la carga, el sistema regresa al Menú Principal"
+		Escribir "Presione una tecla para continuar..."
+		Esperar Tecla
+	Fin Si
 	// Fin del SubProceso de carga de reserva.-
 Fin SubProceso
 
-// **********************************************************************************************************************************************************************************************************************************
+// ************************************************************************** < FUNCION NOMBRETURNO() - DEVUELVE EL HORARIO EN CARACTER > *******************************************************************************************
 
 Funcion nombre_Turno<-nombreTurno(opcionDelMenu)	// esta función devuelve una variable con el nombre del turno según la selección del número de turno/horario (ej: si nro_horario=1 devuelve "10hs a 11hs")
 	Definir nombre_Turno Como Caracter
@@ -411,8 +418,9 @@ Funcion nomb_usuario<-busquedaReservaDia(reservas, cantidad_diasMes Por Valor, n
 	
 	Mientras !banderaSalir Hacer			// Selecciona el tipo de cancha sobre la cual el operador busca la reserva (TECHADA o DESCUBIERTA), representado por el primer índice del vector reservas[cancha,dia,turno]
 		Escribir "---------------------------------------------------------------------------------------" // se utiliza "-" en vez de "*" para diferenciar claramente a la vista del operador del
-		Escribir "*                  Búsqueda de una Reserva para una cancha deportiva                   *" // sistema que ha ingresado a una opción del menú.- 
+		Escribir "    Opción 2 del Menú Principal - Búsqueda de una Reserva para una cancha deportiva    " // sistema que ha ingresado a una opción del menú.- 
 		Escribir "---------------------------------------------------------------------------------------"
+		Escribir ""
 		Escribir "Por favor, ingrese el tipo de cancha sobre la cual desea buscar una reserva: "
 		Escribir "---------------------------------------------------------------------------"
 		Escribir "1. Buscar una reserva en cancha TECHADA"
@@ -490,7 +498,7 @@ FinFuncion
 Funcion VoF<-busquedaReservaNombre(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
 	Definir nomb_usuario Como Caracter
 	Definir cancha, nombreDia, turno, nombre_usuario Como Caracter
-	Definir banderaSalir, banderaSalir1, banderaSalir2, VoF Como Logico
+	Definir banderaSalir, banderaSalir1, VoF Como Logico
 	Definir opcionDelMenu, nro_cancha, nro_dia, nro_horario, j, k Como Entero
 	VoF=Falso
 	banderaSalir=Falso						// Utilizo una bandera (banderaSalir) para permanecer en el bucle de TIPO DE CANCHA hasta que seleccione una opción posible del menú
@@ -498,8 +506,9 @@ Funcion VoF<-busquedaReservaNombre(reservas, cantidad_diasMes Por Valor, nombreM
 	
 	Mientras !banderaSalir Hacer			// Selecciona el tipo de cancha sobre la cual el operador busca la reserva (TECHADA o DESCUBIERTA), representado por el primer índice del vector reservas[cancha,dia,turno]
 		Escribir "---------------------------------------------------------------------------------------" // se utiliza "-" en vez de "*" para diferenciar claramente a la vista del operador del
-		Escribir "*                  Búsqueda de una Reserva para una cancha deportiva                   *" // sistema que ha ingresado a una opción del menú.- 
+		Escribir "    Opción 3 del Menú Principal - Búsqueda de una Reserva para una cancha deportiva    " // sistema que ha ingresado a una opción del menú.- 
 		Escribir "---------------------------------------------------------------------------------------"
+		Escribir ""
 		Escribir "Por favor, ingrese la cancha sobre la cual se desea buscar una reserva por nombre: "
 		Escribir "---------------------------------------------------------------------------"
 		Escribir "1. Buscar una reserva en cancha TECHADA"
@@ -520,73 +529,112 @@ Funcion VoF<-busquedaReservaNombre(reservas, cantidad_diasMes Por Valor, nombreM
 				nro_cancha=1		// los índices del vector reservas van del 0 al 1 (son 2 canchas)
 			De Otro Modo:						// el operador ingresó la opción 3 del menú, por lo cual coloco el resto de las banderas en Verdadero para no ingresar a sus bucles y salir del SubProceso.-
 				banderaSalir1=Verdadero		// coloco el resto de las banderas en Verdadero para volver al Menú Principal sin ingresar a los otros bucles.-
-				banderaSalir2=Verdadero		// coloco el resto de las banderas en Verdadero para volver al Menú Principal sin ingresar a los otros bucles.-
 		Fin Segun
 		banderaSalir=Verdadero			// Se realizó la selección o eligió la opción 3 para salir, salgo del bucle de bùsqueda del tipo de cancha (TECHADA/DESCUBIERTA)
 	Fin Mientras
 
-	Escribir "Ingrese el nombre de la persona que desea buscar una reserva:"
-	Leer nomb_usuario
-	nomb_usuario=Mayusculas(nomb_usuario)
-	Mientras Longitud(nomb_usuario)=0 Hacer
-		Escribir "Sr.Operador, no ha ingresado ningún nombre, por favor ingrese el nombre de la reserva a buscar: "
+	Mientras !banderaSalir1 Hacer			// ingresa al bucle si no eligió 3 en la opción del menú (Salir) 
+		Escribir "Ingrese el nombre de la persona que desea buscar una reserva:"
 		Leer nomb_usuario
+		nomb_usuario=Mayusculas(nomb_usuario)
+		Mientras Longitud(nomb_usuario)=0 Hacer
+			Escribir "Sr.Operador, no ha ingresado ningún nombre, por favor ingrese el nombre de la reserva a buscar: "
+			Leer nomb_usuario
+		Fin Mientras
+		
+		Para j=0 Hasta cantidad_diasMes-1 Con Paso 1 Hacer
+			Para k=0 Hasta 11 Con Paso 1 Hacer
+				Si reservas[nro_cancha,j,k]=nomb_usuario Entonces
+					turno=nombreTurno(k+1)		// como el vector se recorre desde 0 hasta 11 debo sumarle uno a k para que la función me devuelva el horario correcto
+					Escribir "La cancha ", cancha, ", el día ", j+1, " de ", turno, " ESTÁ RESERVADA por el Sr. ", reservas[nro_cancha, j, k] 
+					VoF=Verdadero
+				FinSi
+			Fin Para
+		Fin Para
+		banderaSalir1=Verdadero
 	Fin Mientras
 	
-	Para j=0 Hasta cantidad_diasMes-1 Con Paso 1 Hacer
-		Para k=0 Hasta 11 Con Paso 1 Hacer
-			Si reservas[nro_cancha,j,k]=nomb_usuario Entonces
-				Escribir "La cancha ", cancha, ", el día ", j+1, " de ", nombreTurno(k), " ESTÁ RESERVADA por el Sr. ", reservas[nro_cancha, j, k] 
-				VoF=Verdadero
-			FinSi
-		Fin Para
-	Fin Para
 FinFuncion
 
 
 // ********************************************************************************* < OPCION 4 - LISTADO DE RESERVAS POR CANCHA Y DIA > **********************************************************************************
 SubProceso ListadoReservasDia(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
-	Definir cancha, nombreDia, turno, nombre_usuario Como Caracter
-	Definir banderaSalir, banderaSalir1, VoF Como Logico
-	Definir opcionDelMenu, nro_cancha, nro_dia, nro_horario, k Como Entero
+	Definir cancha, turno Como Caracter
+	Definir banderaSalir1, banderaSalir2, VoF Como Logico
+	Definir nro_dia, i, k Como Entero
 	turno=""	// si esta variable permanece vacía al final del SubProceso significa que el operador no ingresó al bucle de selección del turno porque decidió no hacer la reserva.-
-	banderaSalir=Falso						// Utilizo una bandera (banderaSalir) para permanecer en el bucle de TIPO DE CANCHA hasta que seleccione una opción posible del menú
 	banderaSalir1=Falso					// Utilizo una bandera (banderaSalir1) para permanecer en el bucle de selección del DÍA hasta que seleccione un día válido
-	VoF=Falso					// Utilizo una bandera (banderaSalir2) para permanecer en el bucle de selección del TURNO hasta que seleccione un turno(horario) válido.
-	
-	Mientras !banderaSalir Hacer			// Selecciona el tipo de cancha que el usuario desea reservar (TECHADA o DESCUBIERTA), representado por el primer índice del vector reservas[cancha,dia,turno]
-		Escribir "---------------------------------------------------------------------------------------" // se utiliza "-" en vez de "*" para diferenciar claramente a la vista del operador del
-		Escribir "*      Opción 4 del Menú Principal - Listado de Reserva de una cancha deportiva                      *" // sistema que ha ingresado a una opción del menú.- 
-		Escribir "---------------------------------------------------------------------------------------"
-		Escribir "Por favor, ingrese el tipo de cancha que desea visualizar: "
-		Escribir "---------------------------------------------------------- "
-		Escribir "1. Cancha TECHADA"
-		Escribir "2. Cancha DESCUBIERTA"
-		Escribir "3. Salir (volver al menú principal)"
-		Leer opcionDelMenu
-		Mientras opcionDelMenu<1 o opcionDelMenu>3 Hacer
-			Escribir "Ese número ingresado no corresponde a ninguna opción del menú, las opciones son desde el número 1 hasta el 3"
-			Escribir "Por favor, vuelva a ingresar el número correspondiente a la opción del menú deseada: "
-			Leer opcionDelMenu
-		Fin Mientras
-		Segun opcionDelMenu Hacer
-			1:
-				cancha="TECHADA"
-				nro_cancha=0			// los índices del vector reservas van del 0 al 1 (son 2 canchas)
-			2:
-				cancha="DESCUBIERTA"
-				nro_cancha=1			// los índices del vector reservas van del 0 al 1 (son 2 canchas)
-			De Otro Modo:						// el operador ingresó la opción 3 del menú, por lo cual coloco el resto de las banderas en Verdadero para no ingresar a sus bucles y salir del SubProceso.-
-				banderaSalir1=Verdadero		// coloco el resto de las banderas en Verdadero para volver al Menú Principal sin ingresar a los otros bucles.-
-				banderaSalir2=Verdadero		// coloco el resto de las banderas en Verdadero para volver al Menú Principal sin ingresar a los otros bucles.-
-		Fin Segun
-		banderaSalir=Verdadero			// Se realizó la selección o eligió la opción 3 para salir, salgo del bucle de carga del tipo de cancha (TECHADA/DESCUBIERTA)
-	Fin Mientras
-	// Tipo de cancha seleccionada, paso a elegir el día de la reserva / las banderas condicionan la entrada al próximo bloque de carga o no, de acuerdo a si el operador eligio salir o no.-
+	banderaSalir2=Falso		// Utilizo una bandera (banderaSalir2) para NO LISTAR NADA si el operador elige presionar CERO al seleccionar el día para salir de la opción.
+	VoF=Falso
 	
 	Mientras !banderaSalir1 Hacer			// Selecciona el DIA del mes que el usuario desea visualizar, representado por el segundo índice del vector reservas[cancha,DIA,turno]
 		Escribir "---------------------------------------------------------------------------------------------------"
-		Escribir "Por favor, ingrese el DÍA DEL MES de ", nombreMes, " para visualizar las reservas de esa cancha ", cancha, ": "
+		Escribir "Por favor, ingrese el DÍA DEL MES de ", nombreMes, " para visualizar las reservas "
+		Escribir "---------------------------------------------------------------------------------------------------"
+		Escribir "Sr. Operador, si ingresa el número CERO vuelve al Menú Principal"		// la idea es que el operador pueda salir de la opción en cualquier momento
+		Leer nro_dia
+		Si nro_dia==0 Entonces
+			banderaSalir2=Verdadero		// El operador ingresó un cero, coloco el resto de las banderas en Verdadero para no entrar en el otro bucle y volver al Menú Principal
+		SiNo
+			Mientras (nro_dia<0 o nro_dia>cantidad_diasMes) y !banderaSalir1 Hacer
+				Escribir "Ese número ingresado no corresponde a ningún día del mes de ", nombreMes, " , las opciones posibles son desde el número 1 hasta el ", cantidad_diasMes
+				Escribir "Si desea volver al Menú Principal presione el número CERO."
+				Escribir "Por favor, vuelva a ingresar el día para visualizar las reservas registradas."
+				Leer nro_dia
+				Si nro_dia==0 Entonces
+					banderaSalir1=Verdadero
+					banderaSalir2=Verdadero	// El operador ingresó un cero, coloco el resto de las banderas en Verdadero para no entrar en el otro bucle y volver al Menú Principal
+				FinSi
+			Fin Mientras
+		Fin Si
+		banderaSalir1=Verdadero		// Se realizó la selección del DIA o coloca cero, pongo la bandera en VERDADERO para salir del bucle.-
+	Fin Mientras
+	// Día de la reserva seleccionada, paso a elegir el turno de la reserva (horario) / las banderas condicionan la entrada al próximo bloque de carga o no, de acuerdo a si el operador eligio salir o no.-
+	
+	// Entro en el bucle si el operador no ingresa CERO al selecionar el día (cuando elige CERO coloca en VERDADERO a la variable banderaSalir2, por lo cual ingresa al bucle si banderaSalir2 NO ES VERDADERA)
+	Mientras !banderaSalir2 Hacer			// banderaSalir2 se pone en condición VERDADERO si el operador presiona CERO al seleccionar el día (quiere salir de la opción sin listar)
+		Escribir "------------------------------------------"
+		Escribir " El día ", nro_dia, " tiene las siguientes reservas:"
+		Escribir "------------------------------------------"
+		Para i=0 Hasta 1 Con Paso 1 Hacer
+			Para k=0 Hasta 11 Con Paso 1 Hacer
+				Si reservas[i, nro_dia-1 ,k]<>"" Entonces
+					Si i==0 Entonces
+						cancha="TECHADA"
+					SiNo
+						cancha="DESCUBIERTA"
+					Fin Si
+					Escribir "En la cancha ", cancha, " en el horario de ", nombreTurno(k+1), " hay una reserva a nombre del Sr. ", reservas[i, nro_dia-1, k] 
+					VoF=Verdadero
+				FinSi
+			Fin Para
+		FinPara
+		
+		Si !VoF Entonces
+			Escribir "No hay ninguna reserva para visualizar."
+		Fin Si
+		banderaSalir2=Verdadero
+		Escribir "Presione una tecla para continuar..."
+		Esperar Tecla
+	Fin Mientras
+	
+FinSubProceso
+
+// **************************************************************************************** < OPCION 6 - LISTADO DE TURNOS LIBRES POR DÍA > *************************************************************************************
+
+SubProceso horariosLibres(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
+	Definir cancha, turno Como Caracter
+	Definir banderaSalir1, banderaSalir2 Como Logico
+	Definir i, nro_dia, k Como Entero
+	banderaSalir1=Falso					// Utilizo una bandera (banderaSalir1) para permanecer en el bucle de selección del DÍA hasta que seleccione un día válido
+	banderaSalir2=Falso
+	
+	Mientras !banderaSalir1 Hacer			// Selecciona el DIA del mes que el usuario desea visualizar, representado por el segundo índice del vector reservas[cancha,DIA,turno]
+		Escribir "---------------------------------------------------------------------------------------------------" // se utiliza "-" en vez de "*" para diferenciar claramente a la vista del operador del
+		Escribir "          Opción 6 del Menú Principal - Listado de turnos LIBRES de todas las canchas              " // sistema que ha ingresado a una opción del menú.- 
+		Escribir "---------------------------------------------------------------------------------------------------"
+		Escribir "---------------------------------------------------------------------------------------------------"
+		Escribir "Por favor, ingrese el DÍA DEL MES de ", nombreMes, " para visualizar los turnos LIBRES disponibles."
 		Escribir "---------------------------------------------------------------------------------------------------"
 		Escribir "Sr. Operador, si ingresa el número CERO vuelve al Menú Principal"		// la idea es que el operador pueda salir de la opción en cualquier momento
 		Leer nro_dia
@@ -606,23 +654,33 @@ SubProceso ListadoReservasDia(reservas, cantidad_diasMes Por Valor, nombreMes Po
 		Fin Si
 		banderaSalir1=Verdadero		// Se realizó la selección del DIA o coloca cero, pongo la bandera en VERDADERO para salir del bucle.-
 	Fin Mientras
-	// Día de la reserva seleccionada, paso a elegir el turno de la reserva (horario) / las banderas condicionan la entrada al próximo bloque de carga o no, de acuerdo a si el operador eligio salir o no.-
-	
-	Escribir "La cancha ", cancha, ", el día ", nro_dia, " tiene las siguientes reservas:"
-	Para k=0 Hasta 11 Con Paso 1 Hacer
-		Si reservas[nro_cancha, nro_dia-1 ,k]<>"" Entonces
-			Escribir "En el horario de ", nombreTurno(k+1), " hay una reserva a nombre del Sr. ", reservas[nro_cancha, nro_dia-1, k] 
-			VoF=Verdadero
-		FinSi
-	Fin Para
+	// Día seleccionado, entonces debo mostrar el listado si banderaSalir2 no es Verdadero.-
 
-	Si !VoF Entonces
-		Escribir "No hay ninguna reserva para visualizar."
+	Si !banderaSalir2 Entonces			// El operador NO ingresó un cero, muestro las canchas con turnos disponibles
+		// debo recorrer el vector para visualizar los horarios libres (serán aquellos lugares que tengan guardado en su posición = "")
+		Escribir "Turnos LIBRES que se encuentran disponibles para reservar"
+		Escribir "---------------------------------------------------------"
+		Escribir "	      Cancha                    Horario Disponible"
+		Escribir "	      ------                    ------------------"
+		Para i=0 Hasta 1 Con Paso 1 Hacer						// i significa recorrer por cada cancha (0 hasta 1)
+			Si i==0 Entonces
+				cancha="   TECHADA"
+			SiNo
+				cancha="DESCUBIERTA"
+			Fin Si
+			Para k=0 Hasta 11 Con Paso 1 Hacer				// k significa recorrer por cada turno (0 hasta 11)
+				Si reservas[i, nro_dia-1, k] == "" Entonces			// al índice nro_dia le resto uno porque el vector guarda desde cero.-
+					// hay que mostrar la cancha y el turno LIBRE o disponible para una reserva
+					turno=nombreTurno(k+1)	// función que devuelve el turno (ej: "10hs a 11hs") - como el vector recorre desde cero tengo que sumarle uno para que encuentre la opción del según.-
+					Escribir " * ", cancha, "                       ", turno 
+				Fin Si
+			Fin Para
+			Escribir "---------------------------------------------------------" // finaliza las reservas disponibles para una cancha.-
+		Fin Para
+		Escribir "Presione una tecla para continuar..."
+		Esperar Tecla
 	Fin Si
-	Escribir "Presione una tecla para continuar..."
-	Esperar Tecla
 FinSubProceso
-
 
 // ******************************************************************************************* < OPCION 7 - CANCELACION DE UNA RESERVA > ****************************************************************************************
 
@@ -637,9 +695,10 @@ SubProceso cancelaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Va
 	banderaSalir2=Falso					// Utilizo una bandera (banderaSalir2) para permanecer en el bucle de selección del TURNO hasta que seleccione un turno(horario) válido.-
 	
 	Mientras !banderaSalir Hacer			// Selecciona el tipo de cancha sobre la cual el operador busca la reserva (TECHADA o DESCUBIERTA), representado por el primer índice del vector reservas[cancha,dia,turno]
-		Escribir "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\***/////////////////////////////////////////////" // se utiliza "\*/" para diferenciar claramente a la vista del operador del sistema el acceso a una 
-		Escribir "*                  CANCELACION de una Reserva para una cancha deportiva                  *" 				// opción diferente del menú.- 
-		Escribir "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\***/////////////////////////////////////////////"
+		Escribir "*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\***////////////////////////////////////////////////////////*" // se utiliza "\*/" para diferenciar claramente a la vista del operador del sistema el acceso a una 
+		Escribir "*               Opción 7 del Menú Principal - CANCELACION de una Reserva para una cancha deportiva              *" 				// opción diferente del menú.- 
+		Escribir "*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\***////////////////////////////////////////////////////////*"
+		Escribir ""
 		Escribir "Por favor, ingrese el tipo de cancha sobre la cual desea CANCELAR una reserva: "
 		Escribir "------------------------------------------------------------------------------"
 		Escribir "1. CANCELAR una reserva en cancha TECHADA"
@@ -668,7 +727,7 @@ SubProceso cancelaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Va
 	
 	Mientras !banderaSalir1 Hacer			// Selecciona el DIA del mes que el operador desea buscar, representado por el segundo índice del vector reservas[cancha,DIA,turno]
 		Escribir "--------------------------------------------------------------------------------------------------------------------------"
-		Escribir "Por favor, ingrese el día del mes de ", nombreMes, " del cual desea CANCELAR una reserva hecha para esa cancha ", cancha, ": "
+		Escribir "Por favor, ingrese EL DÍA del mes de ", nombreMes, " del cual desea CANCELAR una reserva hecha para esa cancha ", cancha, ": "
 		Escribir "--------------------------------------------------------------------------------------------------------------------------"
 		Escribir "Sr. Operador, si ingresa el número CERO vuelve al Menú Principal"		// la idea es que el operador pueda salir de la opción en cualquier momento
 		Leer nro_dia
@@ -676,9 +735,9 @@ SubProceso cancelaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Va
 			banderaSalir2=Verdadero		// El operador ingresó un cero, coloco el resto de las banderas en Verdadero para no entrar en el otro bucle y volver al Menú Principal
 		SiNo
 			Mientras (nro_dia<0 o nro_dia>cantidad_diasMes) y !banderaSalir1 Hacer
-				Escribir "Ese número ingresado no corresponde a ningún día del mes de ", nombreMes, " , las opciones posibles son desde el número 1 hasta el ", cantidad_diasMes
+				Escribir "Ese número ingresado no corresponde a ningún DÍA del mes de ", nombreMes, " , las opciones posibles son desde el número 1 hasta el ", cantidad_diasMes
 				Escribir "Si desea volver al Menú Principal presione el número CERO."
-				Escribir "Por favor, vuelva a ingresar el día que desea CANCELAR una reserva de esa cancha ", cancha, ": "
+				Escribir "Por favor, vuelva a ingresar EL DÍA en el cual desea CANCELAR una reserva de esa cancha ", cancha, ": "
 				Leer nro_dia
 				Si nro_dia==0 Entonces
 					banderaSalir1=Verdadero
@@ -738,7 +797,7 @@ SubProceso cancelaReserva(reservas, cantidad_diasMes Por Valor, nombreMes Por Va
 	Fin Si
 FinSubProceso
 
-// *************************************************************************************************************************************************************************************************************************************
+// **************************************************************************** < SUBPROCESO PARA ELEGIR EL TURNO/HORARIO > ******************************************************************************************************
 
 SubProceso eligeTurno(textoDelMsg, cancha por valor, nro_dia por valor, nombreMes por valor, opcionDelMenu Por Referencia)
 	Escribir "--------------------------------------------------------------------------------------------------------------------------" 
