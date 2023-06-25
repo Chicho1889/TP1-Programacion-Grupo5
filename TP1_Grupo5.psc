@@ -23,7 +23,7 @@ Proceso TP1_Grupo5
 	// 		2. La busqueda consistirá en buscar en el vector reservas[cancha, dia,turno] la cancha-dia-horario reservado.-
 	// 		3. La búsqueda por nombre consistirá justamente en buscar ese nombre con el que se reservó la cancha en el vector reservas[cancha, dia, turno].-
 	// 		4. Mostrará por pantalla todas las reservas realizadas en el día ingresado por el operador.-
-	// 		5. Mostrará por pantalla todas las reservas realizadas en el mes para una cancha determinada.-
+	// 		5. Mostrará por pantalla todas las reservas realizadas en el mes.-
 	// 		6. Mostrará por pantalla todos los horarios disponibles para reservar cualquiera de las dos canchas en un día determinado.-
 	// 		7. En esta opción el administrador del sistema podrá borrar/cancelar una reserva previamente hecha.-
 	// 		8. Salida del sistema de reservas.-
@@ -32,11 +32,15 @@ Proceso TP1_Grupo5
 	// Al iniciar el programa el supervisor del establecimiento deberá ingresar la clave de acceso secreta (password) con la cual se permitirá acceder a la opción 7 del menú (cancelar turnos) como
 	// 		medida de seguridad para no eliminar reservas ya otorgadas por un error involuntario del operador del sistema, como así también a la opción 8 del sistema, puesto que al no contar con 
 	// 		archivos de bases de datos, si se sale del sistema se pierden todos los datos guardados.-
-	// Además, solicitará se ingrese el mes en curso para generar el vector necesario para operar el sistema (al no poder acceder a bases de datos o archivos previamente cargados/almacenados).-
+	// Además, solicitará se ingrese el mes en curso para generar el vector necesario para operar el sistema (al no poder acceder a bases de datos o archivos previamente cargados/almacenados). Cabe 
+	//		señalar que no estaba pensado en un principio la carga previa de datos "vacíos" o "en blanco" en todo el vector, pero al probar la ejecución del sistema, si no se hacía este paso previo, 
+	// 		el programa arrojaba error al querer comparar una posición que "no estaba inicializada" dentro del vector.-
 	// De esta forma se inicializa el sistema creando un vector de n días (de acuerdo al mes ingresado) y 12 reservas posibles dentro de un mismo día (tomando cada reserva de una hora a partir de 
 	// 		las 10 am, que será el primer turno disponible, hasta las 22 pm que será el último antes del cierre del establecimiento).-
 	// El sistema utilizará un vector de tres dimensiones (de tipo caracter) para las reservas, donde el primer índice se utilizará para individualizar el tipo de cancha reservar ("Techada"/"Descubierta), 
-	//		el segundo índice del vector servirá para individualizar el día de dicha reserva y por último el índice final me indicará el turno/horario dentro de ese día.
+	//		el segundo índice del vector servirá para individualizar el día de dicha reserva y por último el índice final me indicará el turno/horario dentro de ese día.-
+	// Carácteristicas del Vector:
+	//		VECTOR RESERVAS = [PRIMER INDICE ---> DE 0 A 1(dos canchas), SEGUNDO INDICE ---> DE 0 A total días del mes(de acuerdo al mes ingresado), TERCER INDICE ---> DE 0 A 11(son 12 turnos por día)
 	
 	Definir reservas, password, nombreMes, nombreUsuarioReserva Como Caracter
 	Definir i, j, mes, cantidad_diasMes, opcionDelMenu Como Entero
@@ -56,7 +60,7 @@ Proceso TP1_Grupo5
 	Dimension reservas[2, cantidad_diasMes, 12]	// una vez dimensionado el vector, debo cargarlo con datos vacios porque sino al querer cancelar una reserva de una posicion que no tiene nada tira error
 	inicializarVectorReservas(reservas, cantidad_diasMes)				// coloca en todas las posiciones del vector un espacio vacio
 	
-	Mientras !banderaSalir Hacer			// NOT banderaSalir (como banderaSalir tiene Falso, doy vuelta la condición)
+	Mientras !banderaSalir Hacer			// NOT banderaSalir (banderaSalir tiene Falso, por lo cual, mientras no cambie su condición permanezco en el bucle)
 		Limpiar Pantalla
 		Escribir "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
 		Escribir "*                  Bienvenido al sistema de reserva de canchas deportivas             *"
@@ -112,7 +116,8 @@ Proceso TP1_Grupo5
 				// SubProceso listadoReservasDia()	// el operador ingresa el día que quiere ver y se muestran por pantalla todas las reservas de ese día.-
 				listadoReservasDia(reservas, cantidad_diasMes, nombreMes)
 			5:
-				// SubProceso listadoReservasMes()	// el operador ingresa la cancha que desea visualizar y se muestra por pantalla las reservas del mes en curso para esa cancha solicitada.-
+				// SubProceso listadoReservasMes()	// se visualizan por pantalla las reservas registradas del mes en curso.-
+				listadoReservasMes(reservas, cantidad_diasMes, nombreMes)
 			6:
 				// SubProceso horariosLibres()		// solicita al operador que ingrese un día y muestra los horarios libres para cualquiera de las dos canchas.-
 				horariosLibres(reservas, cantidad_diasMes, nombreMes)
@@ -135,7 +140,7 @@ Proceso TP1_Grupo5
 				ingresoClave_VF=solicitaClave(password)	// llamado a la función solicitaClave() que devuelve el valor Verdadero si ingreso correctamente la clave y Falso si fue incorrecta (en línea Nº ...)
 				Si ingresoClave_VF Entonces
 					// Clave correcta - Permite salir del sistema de reservas.-
-					banderaSalir=Verdadero
+					banderaSalir=Verdadero			// cambio la condición de banderaSalir para salir del bucle.-
 				SiNo
 					// Clave incorrecta - No autoriza el ingreso al proceso de cancelación de reserva.-
 					Limpiar Pantalla
@@ -558,8 +563,9 @@ FinFuncion
 
 
 // ********************************************************************************* < OPCION 4 - LISTADO DE RESERVAS POR CANCHA Y DIA > **********************************************************************************
+
 SubProceso ListadoReservasDia(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
-	Definir cancha, turno Como Caracter
+	Definir cancha, turno, espacio Como Caracter
 	Definir banderaSalir1, banderaSalir2, VoF Como Logico
 	Definir nro_dia, i, k Como Entero
 	turno=""	// si esta variable permanece vacía al final del SubProceso significa que el operador no ingresó al bucle de selección del turno porque decidió no hacer la reserva.-
@@ -596,15 +602,21 @@ SubProceso ListadoReservasDia(reservas, cantidad_diasMes Por Valor, nombreMes Po
 		Escribir "------------------------------------------"
 		Escribir " El día ", nro_dia, " tiene las siguientes reservas:"
 		Escribir "------------------------------------------"
+		Escribir ""
+		Escribir "	Cancha             Horario RESERVADO       Nombre de la reserva"
+		Escribir "	------             -----------------       --------------------"
+		
 		Para i=0 Hasta 1 Con Paso 1 Hacer
 			Para k=0 Hasta 11 Con Paso 1 Hacer
 				Si reservas[i, nro_dia-1 ,k]<>"" Entonces
 					Si i==0 Entonces
 						cancha="TECHADA"
+						espacio="               "
 					SiNo
 						cancha="DESCUBIERTA"
+						espacio="           "
 					Fin Si
-					Escribir "En la cancha ", cancha, " en el horario de ", nombreTurno(k+1), " hay una reserva a nombre del Sr. ", reservas[i, nro_dia-1, k] 
+					Escribir cancha, espacio, nombreTurno(k+1), "           * Sr.", reservas[i, nro_dia-1, k] 
 					VoF=Verdadero
 				FinSi
 			Fin Para
@@ -620,7 +632,49 @@ SubProceso ListadoReservasDia(reservas, cantidad_diasMes Por Valor, nombreMes Po
 	
 FinSubProceso
 
-// **************************************************************************************** < OPCION 6 - LISTADO DE TURNOS LIBRES POR DÍA > *************************************************************************************
+// *************************************************************************************** < OPCION 5 - LISTADO DE RESERVAS DEL MES > ************************************************************************************
+
+SubProceso listadoReservasMes(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
+	Definir i, j, k Como Entero
+	Definir VoF Como Logico
+	Definir cancha Como Caracter
+	Definir espacio Como Caracter
+	VoF=Falso
+	Escribir "----------------------------------------------------"
+	Escribir " El MES ", nombreMes, " tiene las siguientes reservas:"
+	Escribir "----------------------------------------------------"
+	Escribir ""
+	Escribir "	Día       Cancha             Horario RESERVADO       Nombre de la reserva"
+	Escribir "	---       ------             -----------------       --------------------"
+
+	Para i=0 Hasta 1 Con Paso 1 Hacer
+		Para j=0 Hasta cantidad_diasMes-1 Con Paso 1 Hacer
+			Para k=0 Hasta 11 Con Paso 1 Hacer
+				Si reservas[i, j, k]<>"" Entonces
+					Si i==0 Entonces
+						cancha="TECHADA"
+						espacio="               "
+					SiNo
+						cancha="DESCUBIERTA"
+						espacio="           "
+					Fin Si
+					Escribir j+1, "        ", cancha, espacio, nombreTurno(k+1), "           * ", reservas[i, j, k] 
+					VoF=Verdadero
+				FinSi
+			Fin Para
+		FinPara
+	FinPara
+	
+	Si !VoF Entonces
+		Escribir "¡ ATENCIÓN ! - AÚN NO HA REALIZADO NINGUNA RESERVA DURANTE EL MES DE ", nombreMes
+		Escribir "No hay ninguna reserva para visualizar."
+	Fin Si
+	Escribir "Presione una tecla para continuar..."
+	Esperar Tecla
+FinSubProceso
+
+
+// **************************************************************************************** < OPCION 6 - LISTADO DE TURNOS LIBRES POR DÍA > ******************************************************************************
 
 SubProceso horariosLibres(reservas, cantidad_diasMes Por Valor, nombreMes Por Valor)
 	Definir cancha, turno Como Caracter
